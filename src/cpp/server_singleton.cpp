@@ -25,19 +25,20 @@ void server_singleton::run(boost::asio::io_service &io_service, short port)
   this->acceptor = boost::make_shared<boost::asio::ip::tcp::acceptor>(
       io_service, 
       boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-  this->acceptor->async_accept(boost::bind(&server_singleton::accepted, this, _1, _2));
+  this->socket = boost::make_shared<boost::asio::ip::tcp::socket>(io_service);
+  this->acceptor->async_accept(*this->socket, boost::bind(&server_singleton::accepted, this->shared_from_this(), _1));
 }
 
-void server_singleton::accepted(const boost::system::error_code &error_code, boost::asio::ip::tcp::socket& socket)
+void server_singleton::accepted(const boost::system::error_code &error_code)
 {
-    if(error_code)
-    {
-      std::cerr << "Failed to accept.\n";
-      std::cerr << error_code.message() << ' ' << error_code << '\n';
-    }
-    else
-    {
-      
-    }
-    this->acceptor->async_accept(boost::bind(&server_singleton::accepted, this, _1, _2));
+  if(error_code)
+  {
+    std::cerr << "Failed to accept.\n";
+    std::cerr << error_code.message() << ' ' << error_code << '\n';
+  }
+  else
+  {
+    
+  }
+  this->acceptor->async_accept(*this->socket, boost::bind(&server_singleton::accepted, this->shared_from_this(), _1));
 }

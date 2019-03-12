@@ -24,7 +24,10 @@ public:
     : io_service(io_service),
       acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
   {
-    this->acceptor.async_accept(boost::bind(&server::accepted, this, _1, _2));
+    // this->acceptor.async_accept(boost::bind(&server::accepted, this, _1, _2));
+    this->acceptor.async_accept([this](const boost::system::error_code &error_code, boost::asio::ip::tcp::socket socket){
+      this->accepted(error_code, socket);
+    });
   }
 
 private:
@@ -41,93 +44,15 @@ private:
       // boost::make_shared<spo2_session>(this->io_service, boost::move(socket), 500)->start();
       boost::make_shared<wave_spo2_session>(this->io_service, socket, 50)->start();
     }
-    this->acceptor.async_accept(boost::bind(&server::accepted, this, _1, _2));
+    // this->acceptor.async_accept(boost::bind(&server::accepted, this, _1, _2));
+    this->acceptor.async_accept([this](const boost::system::error_code &error_code, boost::asio::ip::tcp::socket socket){
+      this->accepted(error_code, socket);
+    });
   }
 
   boost::asio::io_service& io_service;
   boost::asio::ip::tcp::acceptor acceptor;
-  class session: public boost::enable_shared_from_this<session>
-  {
-    public:
-      session(boost::asio::io_service& io_service, boost::asio::ip::tcp::socket &socket):
-        socket(boost::move(socket)),
-        timer(io_service)
-      {
-      }
-      void start()
-      {
-        this->timer.async_wait(boost::bind(&session::send, this->shared_from_this(), _1));
-      }
-
-    private:
-      void send(const boost::system::error_code &error_code)
-      {
-        if(error_code)
-        {
-          std::cerr << "Fail to send. \n";
-          std::cerr << error_code.message() << ' ' << error_code << '\n';
-          return;
-        }
-        boost::random::uniform_int_distribution<> a_hundred(0, 99);
-        data = std::to_string(a_hundred(this->rng));
-        // std::cerr << "send\n";
-        this->socket.async_send(boost::asio::buffer(data, sizeof(data)), 0, [](const boost::system::error_code &, std::size_t){}); 
-        this->timer.expires_after(std::chrono::milliseconds(500));
-        this->timer.async_wait(boost::bind(&session::send, this->shared_from_this(), _1));
-      }
-
-      boost::asio::ip::tcp::socket socket;
-      boost::asio::steady_timer timer;
-      boost::random::mt19937 rng;
-      std::string data;
-  };
-
-  class spo2_session: public boost::enable_shared_from_this<spo2_session>
-  {
-    public:
-      spo2_session(boost::asio::io_service& io_service, boost::asio::ip::tcp::socket &socket, const int &milliseconds):
-        socket(boost::move(socket)),
-        timer(io_service), 
-        milliseconds(milliseconds)
-      {
-
-      }
-      void start()
-      {
-        this->timer.async_wait(boost::bind(&spo2_session::send, this->shared_from_this(), _1));
-      }
-    private:
-      void send(const boost::system::error_code &error_code)
-      {
-        if(error_code)
-        {
-          std::cerr << "Fail to send. \n";
-          std::cerr << error_code.message() << ' ' << error_code << '\n';
-          return;
-        }
-        boost::random::uniform_int_distribution<> a_hundred(30, 129);
-        this->data = std::to_string(a_hundred(this->rng));
-        this->socket.async_send(boost::asio::buffer(this->data, sizeof(this->data)), 0, 
-          boost::bind(&spo2_session::sent, this->shared_from_this(), _1, _2)); 
-        this->timer.expires_after(std::chrono::milliseconds(this->milliseconds));
-        this->timer.async_wait(boost::bind(&spo2_session::send, this->shared_from_this(), _1));
-      }
-      void sent(const boost::system::error_code &error_code, std::size_t size)
-      {
-        (void)(size);
-        if(error_code)
-        {
-          std::cerr << "Failed to send.\n";
-          std::cerr << error_code.message() << '\n';
-        }
-      }
-      boost::asio::ip::tcp::socket socket;
-      boost::asio::steady_timer timer;
-      boost::random::mt19937 rng;
-      std::string data;
-      int milliseconds;
-  };
-
+  
   class wave_spo2_session: public boost::enable_shared_from_this<wave_spo2_session>
   {
     public:
