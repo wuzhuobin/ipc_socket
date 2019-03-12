@@ -16,6 +16,7 @@ boost::shared_ptr<server_singleton> server_singleton::server_singleton_instance(
 
 server_singleton::server_singleton()
 {
+  this->initialization();
 }
 
 void server_singleton::run(boost::asio::io_service &io_service, short port)
@@ -38,7 +39,11 @@ void server_singleton::accepted(const boost::system::error_code &error_code)
   }
   else
   {
-    
+    for(auto factory: factories) 
+    {
+      
+      factory->create_session(*this->socket)->start();
+    }
   }
   this->acceptor->async_accept(*this->socket, boost::bind(&server_singleton::accepted, this->shared_from_this(), _1));
 }

@@ -4,6 +4,7 @@ add_executable(
     main.cpp
     server_singleton.cpp
     wave_spo2_session.cpp
+    server_singleton_initialization.cpp
 )
 target_include_directories(
     ${PROJECT_NAME}
