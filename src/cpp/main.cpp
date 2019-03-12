@@ -1,25 +1,12 @@
-//
-// async_tcp_echo_server.cpp
-// ~~~~~~~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2016 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
-#include <cstdlib>
-#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/random.hpp>
 #include <boost/smart_ptr.hpp>
-// #include <boost/geometry.hpp>
+
 // std 
+#include <cstdlib>
+#include <iostream>
 #include <vector>
-#if __cplusplus <= 199711L
-#define constexpr const
-#endif
 
 std::ostream &operator<<(std::ostream &os, const std::vector<int> &data)
 {
@@ -29,20 +16,6 @@ std::ostream &operator<<(std::ostream &os, const std::vector<int> &data)
   }
   return os;
 }
-// template <size_t N>
-// struct array_
-// {
-//   static const int INDEX = 252 / HZ * N;
-//   static const int V = ONE_SECOND_DATA_ORIGIN[INDEX];
-//   static const int PREVIOUS_V = array_<N - 1>::V;
-// };
-// template <>
-// struct array_<0>
-// {
-//   static const int INDEX = 0;
-//   static const int V = ONE_SECOND_DATA_ORIGIN[0];
-//   static const int PREVIOUS_V = -1;
-// };
 
 class server
 {
@@ -55,7 +28,7 @@ public:
   }
 
 private:
-  void accepted(boost::system::error_code error_code, boost::asio::ip::tcp::socket& socket)
+  void accepted(const boost::system::error_code &error_code, boost::asio::ip::tcp::socket& socket)
   {
     if(error_code)
     {
@@ -66,7 +39,7 @@ private:
     {
       // boost::make_shared<session>(this->io_service, boost::move(socket))->start();
       // boost::make_shared<spo2_session>(this->io_service, boost::move(socket), 500)->start();
-      boost::make_shared<wave_spo2_session>(this->io_service, boost::move(socket), 50)->start();
+      boost::make_shared<wave_spo2_session>(this->io_service, socket, 50)->start();
     }
     this->acceptor.async_accept(boost::bind(&server::accepted, this, _1, _2));
   }
@@ -267,6 +240,8 @@ const std::vector<int> server::wave_spo2_session::ONE_SECOND_DATA_ORIGIN{
   189, 204, 199, 179, 151, 122, 97, 81, 74, 76, 79, 81, 74, 66,
   58, 51, 43, 30, 28, 23, 17, 10, 5, 2, 2, 2, 7, 30, 66, 110,
   156, 189, 204, 199, 179, 151, 122, 97, 81, 74, 76, 79};
+
+
 int main(int argc, char* argv[]) try
 {
   if (argc != 2)

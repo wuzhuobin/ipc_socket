@@ -2,6 +2,8 @@ find_package(Boost REQUIRED COMPONENTS date_time system regex)
 add_executable(
     ${PROJECT_NAME}
     main.cpp
+    server_singleton.cpp
+    wave_spo2_session.cpp
 )
 target_include_directories(
     ${PROJECT_NAME}
