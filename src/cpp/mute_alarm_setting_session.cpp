@@ -9,10 +9,11 @@
 
 std::ostream & operator<<(std::ostream &os, MuteAlarmSetting data)
 {
-  os << "stx: " << data.stx << '\n';
-  os << "type: " << data.type << ' ' << "len: " << data.len << '\n';
-  os << "mute: " << data.mute  << ' ' << "duration: " << data.duration << '\n'; 
-  os << "etx: " << data.etx;
+  os << "stx: " << +data.stx << '\n';
+  os << "type: " << +data.type << ' ' << "len: " << data.len << '\n';
+  os << "mute: " << data.mute  << ' ' << "duration: " << +data.duration << '\n'; 
+  os << "etx: " << +data.etx;
+  return os;
 }
 
 void mute_alarm_setting_session::start()
