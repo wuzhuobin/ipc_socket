@@ -9,10 +9,6 @@ class session_base: public boost::enable_shared_from_this<session_base>
 {
 public:
   virtual void start() = 0;
-  // session_base(boost::asio::io_service &io_service, 
-  //   boost::asio::ip::tcp::socket &socket) :
-  //   io_service(io_service), 
-  //   socket(boost::move(socket)) {}
   session_base(boost::asio::ip::tcp::socket &socket) :
     io_service(socket.get_io_service()), 
     socket(boost::move(socket)) {}
@@ -20,14 +16,14 @@ public:
   class session_abstract_factory
   {
   public:
-    // virtual boost::shared_ptr<session_base> create_session(
-    //   boost::asio::io_service &io_service, 
-    //   boost::asio::ip::tcp::socket &socket) = 0;
     virtual boost::shared_ptr<session_base> create_session(
       boost::asio::ip::tcp::socket &socket) = 0;
   };
-  virtual void send(const boost::system::error_code &error_code) = 0;
-  virtual void sent(const boost::system::error_code &error_code, std::size_t size) = 0;
+  virtual void receive(const boost::system::error_code &error_code) {}
+  virtual void received(const boost::system::error_code &error_code, std::size_t size) {}
+  virtual void send(const boost::system::error_code &error_code) {}
+  virtual void sent(const boost::system::error_code &error_code, std::size_t size) {}
+  // virtual void read()
 protected:
   boost::asio::io_service &io_service;
   boost::asio::ip::tcp::socket socket;

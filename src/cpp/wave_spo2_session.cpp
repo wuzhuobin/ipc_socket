@@ -27,6 +27,13 @@ static const std::vector<int> ONE_SECOND_DATA_ORIGIN{
   58, 51, 43, 30, 28, 23, 17, 10, 5, 2, 2, 2, 7, 30, 66, 110,
   156, 189, 204, 199, 179, 151, 122, 97, 81, 74, 76, 79};
 
+void wave_spo2_session::start()
+{
+  this->running = true;
+  this->timer.async_wait(boost::bind(
+    &session_base::send, this->shared_from_this(), _1));
+}
+
 wave_spo2_session::wave_spo2_session(boost::asio::ip::tcp::socket &socket) :
   session_base(socket), 
   timer(socket.get_io_service()), 
@@ -35,13 +42,6 @@ wave_spo2_session::wave_spo2_session(boost::asio::ip::tcp::socket &socket) :
   running(false)
 {
 
-}
-
-void wave_spo2_session::start()
-{
-  this->running = true;
-  this->timer.async_wait(boost::bind(
-    &session_base::send, this->shared_from_this(), _1));
 }
 
 void wave_spo2_session::send(const boost::system::error_code &error_code)

@@ -5,6 +5,7 @@ add_executable(
     server_singleton.cpp
     wave_spo2_session.cpp
     server_singleton_initialization.cpp
+    mute_alarm_setting_session.cpp
 )
 target_include_directories(
     ${PROJECT_NAME}

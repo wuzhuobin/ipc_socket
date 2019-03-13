@@ -10,19 +10,10 @@
 class wave_spo2_session: public session_base
 {
 public:
-  // wave_spo2_session(boost::asio::io_service &io_service, boost::asio::ip::tcp::socket &socket);
-  wave_spo2_session(boost::asio::ip::tcp::socket &socket);
   virtual void start() override;
   class wave_spo2_session_factory: public session_abstract_factory
   {
   public:
-    // virtual boost::shared_ptr<session_base> create_session(
-    //   boost::asio::io_service &io_service, 
-    //   boost::asio::ip::tcp::socket &socket) override
-    // {
-    //   return boost::shared_ptr<session_base>(
-    //     new wave_spo2_session(io_service, socket));
-    // }
     virtual boost::shared_ptr<session_base> create_session(
       boost::asio::ip::tcp::socket &socket) override
     {
@@ -31,6 +22,7 @@ public:
     }
   };
 private:
+  wave_spo2_session(boost::asio::ip::tcp::socket &socket);
   virtual void send(const boost::system::error_code &error_code) override;
   virtual void sent(const boost::system::error_code &error_code, std::size_t size) override;
   boost::asio::steady_timer timer;

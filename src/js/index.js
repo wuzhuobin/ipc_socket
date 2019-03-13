@@ -1,5 +1,5 @@
 const net = require('net');
-const client = net.connect({ port: 8090, host: '127.0.0.1' }, function () { 
+const client = net.createConnection({ port: 8090, host: '127.0.0.1' }, function () { 
     console.log("connected to server!");
 });
 
